@@ -1,0 +1,84 @@
+/* ============================================================
+   QR Attendance System – Custom Styles
+   ============================================================ */
+
+/* Global */
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8f9fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+main.container {
+  flex: 1;
+}
+
+/* ─── Stat cards ─────────────────────────────────────────── */
+.stat-card {
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ─── QR display page ────────────────────────────────────── */
+#qr-image {
+  border: 4px solid #dee2e6;
+  border-radius: 0.5rem;
+  transition: opacity 0.3s ease;
+}
+
+#qr-image.refreshing {
+  opacity: 0.3;
+}
+
+/* ─── Login card ─────────────────────────────────────────── */
+.card {
+  border-radius: 0.75rem !important;
+}
+
+/* ─── Table ──────────────────────────────────────────────── */
+.table thead th {
+  white-space: nowrap;
+}
+
+/* ─── Navbar ─────────────────────────────────────────────── */
+.navbar-brand {
+  font-size: 1.25rem;
+  letter-spacing: 0.01em;
+}
+
+/* ─── Attendance success / error icons ───────────────────── */
+.bi-check-circle-fill,
+.bi-exclamation-triangle-fill,
+.bi-hourglass-bottom,
+.bi-wifi-off,
+.bi-person-x {
+  display: block;
+  margin: 0 auto;
+}
+
+/* ─── Responsive QR image ────────────────────────────────── */
+@media (max-width: 576px) {
+  #qr-image {
+    max-width: 240px !important;
+  }
+}

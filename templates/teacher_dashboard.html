@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Dashboard – QR Attendance{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <h2 class="fw-bold mb-0 me-3">
+    <i class="bi bi-speedometer2 text-primary me-2"></i>Teacher Dashboard
+  </h2>
+  <span class="text-muted">Welcome, {{ teacher_name }}</span>
+</div>
+
+{% if course_stats %}
+  {% for cs in course_stats %}
+  <div class="card shadow-sm border-0 rounded-3 mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <span class="fw-semibold fs-5">
+        <i class="bi bi-book me-2"></i>{{ cs.course.course_name }}
+      </span>
+      <!-- Generate QR button -->
+      <form method="POST" action="{{ url_for('generate_qr') }}" class="mb-0">
+        <input type="hidden" name="course_id" value="{{ cs.course.course_id }}" />
+        <button type="submit" class="btn btn-light btn-sm fw-semibold">
+          <i class="bi bi-qr-code-scan me-1"></i>Generate Attendance QR
+        </button>
+      </form>
+    </div>
+
+    <div class="card-body">
+      <!-- Stats row -->
+      <div class="row g-3 mb-3">
+        <div class="col-6 col-md-3">
+          <div class="stat-card text-center p-3 rounded-3 bg-light">
+            <div class="stat-number text-primary">{{ cs.total_students }}</div>
+            <div class="stat-label text-muted small">Total Students</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-card text-center p-3 rounded-3 bg-success bg-opacity-10">
+            <div class="stat-number text-success">{{ cs.attended }}</div>
+            <div class="stat-label text-muted small">Present</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-card text-center p-3 rounded-3 bg-danger bg-opacity-10">
+            <div class="stat-number text-danger">{{ cs.absent }}</div>
+            <div class="stat-label text-muted small">Absent</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-card text-center p-3 rounded-3 bg-info bg-opacity-10">
+            <div class="stat-number text-info">{{ cs.percentage }}%</div>
+            <div class="stat-label text-muted small">Attendance</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="mb-3">
+        <div class="progress" style="height: 8px;">
+          <div
+            class="progress-bar bg-success"
+            role="progressbar"
+            style="width: {{ cs.percentage }}%"
+            aria-valuenow="{{ cs.percentage }}"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          ></div>
+        </div>
+        <small class="text-muted">Attendance rate: {{ cs.percentage }}%</small>
+      </div>
+
+      <!-- Active session badge -->
+      {% if cs.active_session %}
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <span class="badge bg-success">
+            <i class="bi bi-circle-fill me-1" style="font-size:0.5rem;"></i>Active Session
+          </span>
+          <span class="text-muted small">
+            Expires: {{ cs.active_session.expire_time.strftime('%Y-%m-%d %H:%M:%S') }} UTC
+          </span>
+          <a
+            href="{{ url_for('qr_display', session_id=cs.active_session.session_id) }}"
+            class="btn btn-outline-primary btn-sm"
+          >
+            <i class="bi bi-eye me-1"></i>View QR
+          </a>
+          <a
+            href="{{ url_for('view_attendance', session_id=cs.active_session.session_id) }}"
+            class="btn btn-outline-secondary btn-sm"
+          >
+            <i class="bi bi-list-check me-1"></i>View Attendance
+          </a>
+        </div>
+      {% else %}
+        <span class="badge bg-secondary">No Active Session</span>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+
+{% else %}
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i>
+    No courses assigned to you yet. Please contact the administrator.
+  </div>
+{% endif %}
+{% endblock %}
