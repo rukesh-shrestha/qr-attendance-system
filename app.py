@@ -20,6 +20,7 @@ Student routes:
 """
 
 import io
+import os
 import base64
 import secrets
 from datetime import datetime, timedelta, timezone
@@ -513,4 +514,7 @@ def not_found(e):
 # ---------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # debug=True is for local development only.
+    # In production, use a WSGI server (e.g. gunicorn) with debug=False.
+    debug_mode = os.environ.get('FLASK_DEBUG', 'false').lower() in ('1', 'true', 'yes')
+    app.run(debug=debug_mode, host='0.0.0.0', port=5000)
