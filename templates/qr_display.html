@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}QR Code – {{ att_session.course.course_name }}{% endblock %}
+
+{% block head %}
+<style>
+  #qr-container {
+    position: relative;
+    display: inline-block;
+  }
+  #qr-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.85);
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #dc3545;
+  }
+  #countdown-ring {
+    stroke-dasharray: 220;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7 col-lg-6">
+
+    <div class="card shadow border-0 rounded-3">
+      <div class="card-header bg-primary text-white text-center py-3">
+        <h4 class="mb-0 fw-bold">
+          <i class="bi bi-qr-code me-2"></i>{{ att_session.course.course_name }}
+        </h4>
+        <small>Attendance QR Code</small>
+      </div>
+
+      <div class="card-body text-center py-4">
+
+        <!-- Session expiry countdown -->
+        <div id="session-expired-msg" class="alert alert-danger d-none" role="alert">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          This attendance session has <strong>expired</strong>.
+          <a href="{{ url_for('teacher_dashboard') }}" class="alert-link">Return to dashboard</a>
+          to start a new session.
+        </div>
+
+        <!-- QR image -->
+        <div id="qr-container" class="mb-3">
+          <img
+            id="qr-image"
+            src="data:image/png;base64,{{ qr_b64 }}"
+            alt="Attendance QR Code"
+            class="img-fluid rounded shadow-sm"
+            style="max-width: 300px;"
+          />
+          <div id="qr-overlay">
+            <span>QR Expired</span>
+          </div>
+        </div>
+
+        <!-- Refresh countdown ring -->
+        <div class="d-flex justify-content-center align-items-center gap-3 mb-3">
+          <svg width="56" height="56" viewBox="0 0 80 80">
+            <circle cx="40" cy="40" r="35" fill="none" stroke="#e9ecef" stroke-width="8"/>
+            <circle
+              id="countdown-ring"
+              cx="40" cy="40" r="35"
+              fill="none"
+              stroke="#0d6efd"
+              stroke-width="8"
+              stroke-linecap="round"
+              transform="rotate(-90 40 40)"
+            />
+            <text x="40" y="46" text-anchor="middle" font-size="20" font-weight="bold" fill="#0d6efd" id="countdown-text">
+              {{ refresh_interval }}
+            </text>
+          </svg>
+          <div class="text-start">
+            <div class="fw-semibold">Auto-refresh in <span id="refresh-seconds">{{ refresh_interval }}</span>s</div>
+            <div class="text-muted small">QR rotates every {{ refresh_interval }} seconds</div>
+          </div>
+        </div>
+
+        <!-- Manual refresh -->
+        <button
+          id="btn-refresh"
+          class="btn btn-outline-primary btn-sm mb-3"
+          onclick="refreshQR()"
+        >
+          <i class="bi bi-arrow-clockwise me-1"></i>Refresh Now
+        </button>
+
+        <!-- Session info -->
+        <div class="text-muted small mt-2">
+          <i class="bi bi-clock me-1"></i>
+          Session expires at
+          <strong>{{ att_session.expire_time.strftime('%Y-%m-%d %H:%M:%S') }} UTC</strong>
+        </div>
+
+      </div><!-- /.card-body -->
+
+      <div class="card-footer bg-light d-flex justify-content-between align-items-center">
+        <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i>Dashboard
+        </a>
+        <a href="{{ url_for('view_attendance', session_id=att_session.session_id) }}"
+           class="btn btn-sm btn-outline-success">
+          <i class="bi bi-list-check me-1"></i>View Attendance
+        </a>
+      </div>
+    </div><!-- /.card -->
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/qr_refresh.js') }}"></script>
+<script>
+  const REFRESH_INTERVAL = {{ refresh_interval }};
+  const SESSION_ID       = {{ att_session.session_id }};
+  const REFRESH_URL      = "{{ url_for('refresh_qr', session_id=att_session.session_id) }}";
+
+  startQRRefresh(REFRESH_INTERVAL, SESSION_ID, REFRESH_URL);
+</script>
+{% endblock %}

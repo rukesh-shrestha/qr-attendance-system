@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}My Attendance – QR Attendance{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <h2 class="fw-bold mb-0">
+    <i class="bi bi-person-check text-primary me-2"></i>My Attendance
+  </h2>
+  <span class="text-muted ms-3">{{ student.name }}</span>
+</div>
+
+<!-- Instructions card -->
+<div class="card border-primary shadow-sm mb-4">
+  <div class="card-body">
+    <h5 class="card-title text-primary">
+      <i class="bi bi-qr-code-scan me-2"></i>How to Mark Attendance
+    </h5>
+    <ol class="mb-0">
+      <li>Make sure you are connected to the <strong>college WiFi</strong> network.</li>
+      <li>Ask your teacher to display the attendance QR code.</li>
+      <li>Scan the QR code with this phone.</li>
+      <li>Your attendance will be recorded automatically.</li>
+    </ol>
+  </div>
+</div>
+
+<!-- Attendance history -->
+<h4 class="fw-bold mb-3">
+  <i class="bi bi-calendar-check me-2"></i>Attendance History
+</h4>
+
+{% if records %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-primary">
+        <tr>
+          <th>#</th>
+          <th>Course</th>
+          <th>Date &amp; Time</th>
+          <th>IP Address</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for att, course, sess in records %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td><strong>{{ course.course_name }}</strong></td>
+          <td>
+            <i class="bi bi-clock me-1 text-muted"></i>
+            {{ att.timestamp.strftime('%Y-%m-%d %H:%M:%S') }} UTC
+          </td>
+          <td><code>{{ att.ip_address or 'N/A' }}</code></td>
+          <td>
+            <span class="badge bg-success">
+              <i class="bi bi-check-circle me-1"></i>Present
+            </span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i>
+    No attendance records yet. Scan a QR code when your teacher starts an attendance session.
+  </div>
+{% endif %}
+{% endblock %}

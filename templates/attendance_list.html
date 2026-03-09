@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance List – {{ att_session.course.course_name }}{% endblock %}
+
+{% block content %}
+
+<div class="d-flex align-items-center mb-4 flex-wrap gap-2">
+  <h2 class="fw-bold mb-0 me-auto">
+    <i class="bi bi-list-check text-primary me-2"></i>Attendance List
+  </h2>
+  <a
+    href="{{ url_for('export_attendance', session_id=att_session.session_id) }}"
+    class="btn btn-success"
+  >
+    <i class="bi bi-file-earmark-excel me-2"></i>Export to Excel
+  </a>
+  <a href="{{ url_for('teacher_dashboard') }}" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>Dashboard
+  </a>
+</div>
+
+<!-- Summary cards -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="card border-0 bg-light text-center py-3">
+      <div class="fs-2 fw-bold text-primary">{{ total_students }}</div>
+      <div class="text-muted small">Total Students</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card border-0 bg-success bg-opacity-10 text-center py-3">
+      <div class="fs-2 fw-bold text-success">{{ present_count }}</div>
+      <div class="text-muted small">Present</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card border-0 bg-danger bg-opacity-10 text-center py-3">
+      <div class="fs-2 fw-bold text-danger">{{ absent_count }}</div>
+      <div class="text-muted small">Absent</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="card border-0 bg-info bg-opacity-10 text-center py-3">
+      <div class="fs-2 fw-bold text-info">{{ percentage }}%</div>
+      <div class="text-muted small">Attendance Rate</div>
+    </div>
+  </div>
+</div>
+
+<!-- Progress bar -->
+<div class="mb-4">
+  <div class="progress" style="height: 12px;">
+    <div
+      class="progress-bar bg-success"
+      role="progressbar"
+      style="width: {{ percentage }}%"
+      aria-valuenow="{{ percentage }}"
+      aria-valuemin="0"
+      aria-valuemax="100"
+    ></div>
+  </div>
+</div>
+
+<!-- Course & Session details -->
+<div class="mb-3 text-muted small">
+  <strong>Course:</strong> {{ att_session.course.course_name }} &nbsp;|&nbsp;
+  <strong>Session:</strong> #{{ att_session.session_id }} &nbsp;|&nbsp;
+  <strong>Started:</strong> {{ att_session.start_time.strftime('%Y-%m-%d %H:%M:%S') }} UTC &nbsp;|&nbsp;
+  <strong>Expired:</strong> {{ att_session.expire_time.strftime('%Y-%m-%d %H:%M:%S') }} UTC
+</div>
+
+<!-- Attendance table -->
+{% if records %}
+<div class="table-responsive">
+  <table class="table table-hover align-middle">
+    <thead class="table-primary">
+      <tr>
+        <th>#</th>
+        <th>Student ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Timestamp (UTC)</th>
+        <th>IP Address</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for att, student in records %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td><code>{{ student.student_id }}</code></td>
+        <td>{{ student.name }}</td>
+        <td>{{ student.email }}</td>
+        <td>{{ att.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+        <td><code>{{ att.ip_address or 'N/A' }}</code></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="alert alert-info">
+  <i class="bi bi-info-circle me-2"></i>
+  No students have marked attendance for this session yet.
+</div>
+{% endif %}
+
+{% endblock %}
